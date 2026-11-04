@@ -151,6 +151,7 @@
       });
       editorHost.hidden = false;
       bodyControl.hidden = true;
+      bodyControl.required = false;
       editorStatus.textContent = '正文直接显示排版效果；内容保存为 Markdown 草稿。';
     }).catch(() => {
       editorHost.remove();
@@ -214,7 +215,13 @@
     button.addEventListener('click', () => {
       for (const field of schema.fields) {
         const control = controls.get(field.name);
+        if (field.name === 'body' && richEditor) continue;
         control.setCustomValidity(field.required && !control.value.trim() ? '请填写' + field.label : '');
+      }
+      if (richEditor && !bodyControl.value.trim()) {
+        editorStatus.textContent = '请先填写经历正文。';
+        richEditor.commands.focus();
+        return;
       }
       if (!form.reportValidity()) return;
       const data = new FormData(form);
