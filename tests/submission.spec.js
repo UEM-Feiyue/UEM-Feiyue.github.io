@@ -80,3 +80,44 @@ test('toolbar heading edits are reflected in Markdown', async ({ page }) => {
   await page.getByRole('button', { name: '二级标题' }).click();
   await expect(page.locator('#body')).toHaveValue(/## 备考规划/);
 });
+
+test('Markdown roundtrip survives refresh with heading, quote, list and link', async ({ page }) => {
+  await page.goto('/submit.html');
+  await expect(page.locator('#rich-editor [contenteditable=true]')).toBeVisible();
+  const original = '## 准备阶段\\n\\n**重要提醒**\\n\\n> 保持真实\\n\\n- 材料一\\n- 材料二\\n\\n[参考资料](https://example.com)';
+  await page.evaluate(value => {
+    const draft = JSON.parse(sessionStorage.getItem('uem-draft-v1') || '{}');
+    draft.body = value;
+    sessionStorage.setItem('uem-draft-v1', JSON.stringify(draft));
+  }, original);
+  await page.reload();
+  await expect(page.locator('#rich-editor h2')).toContainText('准备阶段');
+  await expect(page.locator('#rich-editor blockquote')).toContainText('保持真实');
+  await expect(page.locator('#rich-editor li')).toHaveCount(2);
+  await expect(page.locator('#rich-editor a[href="https://example.com"]')).toContainText('参考资料');
+  await page.locator('#rich-editor [contenteditable=true]').click();
+  await page.keyboard.press('End');
+  await page.keyboard.type('补充');
+  const markdown = await page.locator('#body').inputValue();
+  expect(markdown).toContain('## 准备阶段');
+  expect(markdown).toContain('**重要提醒**');
+  expect(markdown).toContain('> 保持真实');
+  expect(markdown).toContain('https://example.com');
+});
+
+test('malicious HTML paste does not retain script or javascript URL', async ({ page }) => {
+  await page.goto('/submit.html');
+  const editor = page.locator('#rich-editor [contenteditable=true]');
+  await expect(editor).toBeVisible();
+  await editor.click();
+  await page.evaluate(() => {
+    const transfer = new DataTransfer();
+    transfer.setData('text/html', '<p>安全正文 <a href="javascript:alert(1)">危险链接</a></p><script>window.__unsafe = true</script>');
+    transfer.setData('text/plain', '安全正文 危险链接');
+    document.querySelector('#rich-editor [contenteditable=true]').dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: transfer }));
+  });
+  await expect(editor).toContainText('安全正文');
+  expect(await page.locator('#body').inputValue()).not.toContain('javascript:');
+  expect(await page.evaluate(() => window.__unsafe)).toBeUndefined();
+  await expect(page.locator('#rich-editor script')).toHaveCount(0);
+});
