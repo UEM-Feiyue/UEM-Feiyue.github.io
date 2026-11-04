@@ -1,10 +1,12 @@
 name: Validate submission editor
 on:
   push:
-    branches: [feature/tiptap-submission]
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -13,16 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - name: Commit regenerated dependency lockfile
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'build: regenerate lockfile for heading extension'
-            git push origin HEAD:feature/tiptap-submission
-          fi
+      - run: npm ci --no-audit --no-fund
       - run: npm run build:editor
       - run: npx playwright install --with-deps chromium
       - run: npm test
