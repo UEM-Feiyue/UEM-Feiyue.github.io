@@ -91,12 +91,7 @@ test('Markdown roundtrip survives refresh with heading, quote, list and link', a
     sessionStorage.setItem('uem-draft-v1', JSON.stringify(draft));
   }, original);
   await page.reload();
-  console.log('ROUNDTRIP DIAGNOSTICS', JSON.stringify(await page.evaluate(() => ({
-    draft: sessionStorage.getItem('uem-draft-v1'),
-    body: document.querySelector('#body')?.value,
-    html: document.querySelector('#rich-editor')?.innerHTML.slice(0, 1500),
-    status: document.querySelector('#rich-editor + .field-hint')?.textContent,
-  }))));
+  await expect(page.locator('#rich-editor [contenteditable=true]')).toBeVisible();
   await expect(page.locator('#rich-editor h2')).toContainText('准备阶段');
   await expect(page.locator('#rich-editor blockquote')).toContainText('保持真实');
   await expect(page.locator('#rich-editor li')).toHaveCount(2);
