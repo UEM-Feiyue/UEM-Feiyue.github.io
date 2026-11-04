@@ -1,0 +1,107 @@
+name: Publish completed Feiyue submissions
+
+on:
+  issues:
+    types: [closed, reopened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: feiyue-submission-publication
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.issue.title, '[飞跃投稿] ') }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: Ensure review status labels
+        run: |
+          gh label create submission:pending --color d4c5f9 --description "投稿待审核" --force
+          gh label create submission:published --color 0e8a16 --description "已写入仓库（等待 Pages 部署）" --force
+          gh label create submission:failed --color b60205 --description "审核通过但自动入库失败" --force
+
+      - uses: actions/checkout@v4
+        if: ${{ github.event.action == 'closed' && github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        if: ${{ github.event.action == 'closed' && github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Validate and publish reviewed contribution
+        id: publish
+        if: ${{ github.event.action == 'closed' && github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pip install -r requirements.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git checkout -B issue-publication origin/main
+            git reset --hard origin/main
+            python scripts/import_completed_submission.py
+            python -m unittest discover -s tests
+            python scripts/build.py
+            git add -A -- content/submissions/
+            if git diff --cached --quiet; then
+              exit 0
+            fi
+            git commit -m "docs: publish reviewed Feiyue issue #${ISSUE_NUMBER}"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "main changed, retrying publication (${attempt}/3)"
+          done
+          exit 1
+
+      - name: Synchronize review status
+        if: ${{ success() }}
+        env:
+          ACTION: ${{ github.event.action }}
+          CLOSE_REASON: ${{ github.event.issue.state_reason }}
+          CLOSING_USER: ${{ github.event.sender.login }}
+          RECORDED: ${{ steps.publish.outputs.recorded }}
+        run: |
+          set -euo pipefail
+          labels="$(gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels[].name')"
+          has() { grep -Fxq "$1" <<< "$labels"; }
+          args=()
+          add() { if ! has "$1"; then args+=(--add-label "$1"); fi; }
+          remove() { if has "$1"; then args+=(--remove-label "$1"); fi; }
+          if [[ "$ACTION" == "reopened" ]]; then
+            if ! has submission:published; then add submission:pending; fi
+            remove submission:failed
+          else
+            remove submission:pending
+            if [[ "$CLOSE_REASON" == "completed" && "$CLOSING_USER" == "FuTseYi" && "$RECORDED" == "true" ]]; then
+              add submission:published
+              remove submission:failed
+            elif ! has submission:published; then
+              remove submission:failed
+            fi
+          fi
+          if (( ${#args[@]} )); then gh issue edit "$ISSUE_NUMBER" "${args[@]}"; fi
+
+      - name: Report failed publication
+        if: ${{ failure() && steps.publish.outcome == 'failure' }}
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if ! gh issue view "$ISSUE_NUMBER" --json labels --jq '.labels[].name' | grep -Fxq submission:published; then
+            gh issue edit "$ISSUE_NUMBER" --add-label submission:failed --remove-label submission:pending || true
+          fi
+          gh issue comment "$ISSUE_NUMBER" --body "自动入库失败，请检查 [Actions 运行记录]($RUN_URL)；关闭 Issue 不代表已经发布。"
