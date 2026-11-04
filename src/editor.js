@@ -11,7 +11,7 @@ export function mountEditor(host, markdown, onChange) {
   host.append(toolbar, surface);
   const editor = new Editor({
     element: surface,
-    extensions: [StarterKit.configure({ link: { openOnClick: false } }), Markdown],
+    extensions: [StarterKit.configure({ heading: { levels: [2, 3] }, link: { openOnClick: false } }), Markdown],
     content: markdown || '',
     contentType: 'markdown',
     editorProps: { attributes: { 'aria-label': '经历正文编辑区' } },
