@@ -172,7 +172,9 @@
       draftStatus.textContent = '草稿已清空，尚未提交。';
       requestAnimationFrame(() => {
         updateCategory();
-        if (richEditor) richEditor.commands.clearContent();
+        if (richEditor) richEditor.commands.clearContent(false);
+        // Reset must not recreate a stale draft through the editor update callback.
+        try { sessionStorage.removeItem(draftKey); } catch {}
       });
     });
     const addInline = (parent, source) => {
