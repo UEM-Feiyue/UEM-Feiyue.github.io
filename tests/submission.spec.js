@@ -84,7 +84,7 @@ test('toolbar heading edits are reflected in Markdown', async ({ page }) => {
 test('Markdown roundtrip survives refresh with heading, quote, list and link', async ({ page }) => {
   await page.goto('/submit.html');
   await expect(page.locator('#rich-editor [contenteditable=true]')).toBeVisible();
-  const original = '## 准备阶段\\n\\n**重要提醒**\\n\\n> 保持真实\\n\\n- 材料一\\n- 材料二\\n\\n[参考资料](https://example.com)';
+  const original = '## 准备阶段\n\n**重要提醒**\n\n> 保持真实\n\n- 材料一\n- 材料二\n\n[参考资料](https://example.com)';
   await page.evaluate(value => {
     const draft = JSON.parse(sessionStorage.getItem('uem-draft-v1') || '{}');
     draft.body = value;
