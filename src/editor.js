@@ -1,6 +1,5 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import { Markdown } from '@tiptap/markdown';
 
 export function mountEditor(host, markdown, onChange) {
@@ -12,7 +11,7 @@ export function mountEditor(host, markdown, onChange) {
   host.append(toolbar, surface);
   const editor = new Editor({
     element: surface,
-    extensions: [StarterKit, Link.configure({ openOnClick: false }), Markdown],
+    extensions: [StarterKit.configure({ link: { openOnClick: false } }), Markdown],
     content: markdown || '',
     contentType: 'markdown',
     editorProps: { attributes: { 'aria-label': '经历正文编辑区' } },
