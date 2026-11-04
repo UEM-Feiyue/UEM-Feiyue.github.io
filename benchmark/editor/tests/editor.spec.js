@@ -71,3 +71,27 @@ test('Tiptap: paste must not preserve script elements or javascript links', asyn
   await expect(page.locator('#editor script')).toHaveCount(0);
   expect(await page.evaluate(() => window.__pasteExecuted === true)).toBe(false);
 });
+
+
+test('Tiptap: Chinese typing and undo preserve editor state', async ({ page }) => {
+  await page.goto('/tiptap.html');
+  const editor = page.locator('#editor [contenteditable="true"]');
+  await editor.click();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.type('这是一次真实的中文输入测试');
+  await expect(page.locator('#output')).toContainText('这是一次真实的中文输入测试');
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.locator('#output')).not.toContainText('这是一次真实的中文输入测试');
+});
+
+test('Tiptap: plain text paste retains Chinese text without markup', async ({ page }) => {
+  await page.goto('/tiptap.html');
+  await page.locator('#editor [contenteditable="true"]').click();
+  await page.evaluate(() => {
+    const el = document.querySelector('#editor [contenteditable="true"]');
+    const transfer = new DataTransfer();
+    transfer.setData('text/plain', '没有格式的中文粘贴');
+    el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: transfer, bubbles: true, cancelable: true }));
+  });
+  await expect(page.locator('#output')).toContainText('没有格式的中文粘贴');
+});
