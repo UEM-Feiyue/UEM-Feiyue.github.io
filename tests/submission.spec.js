@@ -54,3 +54,29 @@ test('contact details are not persisted in draft', async ({ page }) => {
   const draft = await page.evaluate(() => sessionStorage.getItem('uem-draft-v1'));
   expect(draft).not.toContain('private@example.org');
 });
+
+test('rich text paste preserves headings, lists and bold Markdown', async ({ page }) => {
+  await page.goto('/submit.html');
+  const editor = page.locator('#rich-editor [contenteditable=true]');
+  await expect(editor).toBeVisible();
+  await editor.click();
+  await page.evaluate(() => {
+    const element = document.querySelector('#rich-editor [contenteditable=true]');
+    const clipboard = new DataTransfer();
+    clipboard.setData('text/html', '<h2>申请准备</h2><p><strong>重要事项</strong></p><ul><li>材料一</li><li>材料二</li></ul>');
+    clipboard.setData('text/plain', '申请准备 重要事项 材料一 材料二');
+    element.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: clipboard }));
+  });
+  await expect(page.locator('#body')).toHaveValue(/## 申请准备/);
+  await expect(page.locator('#body')).toHaveValue(/\*\*重要事项\*\*/);
+  await expect(page.locator('#body')).toHaveValue(/材料一/);
+});
+
+test('toolbar heading edits are reflected in Markdown', async ({ page }) => {
+  await page.goto('/submit.html');
+  const editor = page.locator('#rich-editor [contenteditable=true]');
+  await expect(editor).toBeVisible();
+  await editor.fill('备考规划');
+  await page.getByRole('button', { name: '二级标题' }).click();
+  await expect(page.locator('#body')).toHaveValue(/## 备考规划/);
+});

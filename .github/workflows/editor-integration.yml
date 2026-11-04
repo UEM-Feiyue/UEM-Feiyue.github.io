@@ -26,5 +26,6 @@ jobs:
           name: submission-editor-results
           path: |
             assets/js/editor/editor.js
+            package-lock.json
             playwright-report
             test-results
