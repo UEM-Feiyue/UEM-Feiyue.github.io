@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "uem-feiyue-submissions",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "SUBMISSIONS_DISABLED": "true"
+  }
+}
