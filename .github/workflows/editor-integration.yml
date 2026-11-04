@@ -3,6 +3,8 @@ on:
   push:
     branches: [feature/tiptap-submission]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -12,6 +14,16 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - name: Commit generated dependency lockfile
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: lock submission editor dependencies'
+            git push origin HEAD:feature/tiptap-submission
+          fi
       - run: npm run build:editor
       - run: npx playwright install --with-deps chromium
       - run: npm test
