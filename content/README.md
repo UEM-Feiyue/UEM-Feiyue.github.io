@@ -26,3 +26,4 @@ tags:
 演示库目前每个方向包含两篇文章，分别覆盖准备流程与具体环节。演示内容统一使用 `demo: true` 标识，删除 `content/demo/` 即可全部移除。
 
 投稿表单的 `data/demo-submission.md` 是独立的纯正文写作示例。编辑器支持 CommonMark 与常见 GFM 排版；浏览器与 Python 发布使用不同解析器，复杂边界语法可能存在差异，公共语法及样式由测试约束。\n
+审核通过的 Issue 自动生成在 `content/submissions/issue-N.md`。`source_issue` 记录来源编号，请勿手工更改生成文件；每个 Issue 只收录一次。维护者选择 Close as completed 才批准发布，Close as not planned 不收录。

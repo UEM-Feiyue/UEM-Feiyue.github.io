@@ -28,3 +28,7 @@ Markdown 存于 `content/`，格式参见 `content/README.md`。运行 `scripts/
 - 只保留四个方向；文章本身承载经验，不另设指南分类。
 - 联系方式为可选项；未来 Issue 投稿会公开显示所有提交字段。
 - 只有 Close as completed 才应触发后续自动发布，且需验证事件来源及内容。
+
+## 投稿自动化
+
+投稿链路：浏览器表单 → Cloudflare Turnstile / Worker → 公开 GitHub Issue → 维护者以 **Close as completed** 审核 → GitHub Actions 导入 `content/submissions/issue-N.md` → Pages 构建发布。详见 [`worker/README.md`](worker/README.md)。Worker 默认关闭；未配置 Worker 地址和 Turnstile 公钥前，表单仅可预览，不会声称已提交。

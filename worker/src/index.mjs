@@ -90,7 +90,7 @@ export default {
     if (!ORIGINS.has(origin)) return json({ok:false,message:'来源不受支持'},403,null);
     const url = new URL(request.url);
     if (url.pathname !== '/submit') return json({ok:false,message:'Not found'},404,origin);
-    if (request.method === 'OPTIONS') return json({ok:true},204,origin);
+    if (request.method === 'OPTIONS') return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type'}});
     if (request.method !== 'POST') return json({ok:false,message:'Method not allowed'},405,origin);
     if (env.SUBMISSIONS_DISABLED !== 'false') return json({ok:false,message:'投稿服务暂未开放'},503,origin);
     if (!env.GITHUB_TOKEN || !env.TURNSTILE_SECRET) return json({ok:false,message:'投稿服务尚未配置'},503,origin);

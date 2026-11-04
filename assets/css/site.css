@@ -145,3 +145,11 @@ body{
 @view-transition{navigation:auto}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.16s;animation-timing-function:ease-in-out}
 @media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation-duration:0s}}
+
+/* Public Issue submission is opt-in; status stays visible even when unavailable. */
+.turnstile-container{margin:24px 0 12px;min-height:0}
+.submission-status{margin:0;align-self:center;font-size:13px;color:var(--muted)}
+.submission-status[data-state="error"]{color:#a22727}
+[data-theme=dark] .submission-status[data-state="error"]{color:#ff9c9c}
+.submission-status[data-state="success"]{color:var(--accent)}
+#submit-button:disabled{opacity:.55;cursor:not-allowed}

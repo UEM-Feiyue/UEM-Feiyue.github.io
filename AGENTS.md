@@ -12,3 +12,5 @@
 10. The emergency-blue palette is a custom interpretation until official UEM visual identity color values are verified.
 
 11. Use `assets/icons/favicon.svg` for all browser favicons, `assets/images/favicon-横版.png` for shared header branding, and `assets/images/anguo-garden.jpg` as a shared site background on all pages with distinct light/dark readability surfaces; paint the campus photo once on body; restore saved theme before stylesheet rendering with theme-init.js; share HAI-inspired footer navigation via site.js with a static fallback; retain transparent content and no decorative hero widgets. Keep image references consistent on root and generated article pages.
+
+12. Public contributions use the ELPA-inspired trust boundary: Cloudflare Worker Turnstile → public GitHub Issue → maintainer Completed closure → GitHub Actions validation → Markdown → Pages. The browser contains no secret, publication is idempotent, and unavailable services must fail closed. Maintain one canonical schema at `data/schema.json` shared by the form, Worker, and importer.

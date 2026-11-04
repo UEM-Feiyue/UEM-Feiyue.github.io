@@ -5,6 +5,10 @@
   const preview = document.querySelector('#preview');
   const previewText = document.querySelector('#preview-text');
   const button = document.querySelector('#preview-button');
+  const submitButton = document.querySelector('#submit-button');
+  const submitStatus = document.querySelector('#submission-status');
+  const submitNotice = document.querySelector('#submission-notice');
+  const submissionConfig = window.UEM_SUBMISSION_CONFIG || {};
   const draftStatus = document.querySelector('#draft-status');
   const draftKey = 'uem-draft-v1';
   const make = (tag, text) => {
@@ -312,6 +316,90 @@
     });
     for (const control of controls.values()) control.addEventListener('input', () => control.setCustomValidity(''));
 
+    // Submission transport is separate from Markdown preview. No browser-side secret.
+    const endpoint = submissionConfig.apiEndpoint;
+    const siteKey = submissionConfig.turnstileSiteKey;
+    let widgetId = null;
+    let busy = false;
+    const configured = (() => {
+      try {
+        const url = new URL(endpoint);
+        return url.protocol === 'https:' && url.pathname.endsWith('/submit') &&
+          typeof siteKey === 'string' && siteKey.length > 10;
+      } catch { return false; }
+    })();
+    const setStatus = (message, state = 'info') => {
+      submitStatus.textContent = message;
+      submitStatus.dataset.state = state;
+    };
+    if (configured) {
+      submitNotice.querySelector('strong').textContent = '投稿将创建公开 GitHub Issue';
+      setStatus('请先完成人机验证，再检查并提交内容。');
+      const turnstileScript = document.createElement('script');
+      turnstileScript.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      turnstileScript.async = true;
+      turnstileScript.onload = () => {
+        if (!window.turnstile) { setStatus('人机验证组件未能加载，请刷新后重试。', 'error'); return; }
+        widgetId = turnstile.render('#turnstile-container', {
+          sitekey: siteKey,
+          action: 'uem_submit',
+          callback: () => { submitButton.disabled = false; setStatus('验证完成，可以提交。'); },
+          'expired-callback': () => {
+            submitButton.disabled = true; setStatus('验证已过期，请重新验证。', 'error');
+          },
+          'error-callback': () => {
+            submitButton.disabled = true; setStatus('人机验证失败，请重试。', 'error');
+          }
+        });
+      };
+      turnstileScript.onerror = () => setStatus('暂时无法加载人机验证，请检查网络。', 'error');
+      document.head.append(turnstileScript);
+    }
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!configured || busy || widgetId === null || submitButton.disabled) return;
+      for (const field of schema.fields) {
+        const control = controls.get(field.name);
+        control.setCustomValidity(field.required && !control.value.trim() ? '请填写' + field.label : '');
+      }
+      if (!form.reportValidity()) return;
+      if (controls.get('body').value.trim().length < 20) {
+        controls.get('body').setCustomValidity('请至少填写 20 个字符的真实经历。');
+        form.reportValidity(); return;
+      }
+      const token = turnstile.getResponse(widgetId);
+      if (!token) { setStatus('请重新完成人机验证。', 'error'); return; }
+      // Any public contact data is displayed and stored in the GitHub Issue.
+      if (!confirm('投稿内容（包含可选联系方式）将立即公开在 GitHub Issue 中。确认提交吗？')) return;
+      const values = Object.fromEntries(new FormData(form));
+      const payload = {version: 1, category: values.category, ...Object.fromEntries(schema.fields.map(field =>
+        [field.name, String(values[field.name] || '').trim()])), turnstileToken: token};
+      busy = true; submitButton.disabled = true;
+      setStatus('正在提交至 GitHub，请勿重复操作。');
+      try {
+        const response = await fetch(endpoint, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw Error(result.message || '投稿失败');
+        if (!/^https:\/\/github\.com\/UEM-Feiyue\/UEM-Feiyue\.github\.io\/issues\/\d+$/.test(result.issueUrl || ''))
+          throw Error('返回的 Issue 地址不合法');
+        try { sessionStorage.removeItem(draftKey); } catch {}
+        setStatus('已提交到 GitHub，等待维护者审核。', 'success');
+        const link = make('a', '查看公开投稿 Issue');
+        link.href = result.issueUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        submitStatus.append(' ', link);
+      } catch (error) {
+        setStatus((error.message || '提交失败') + '。请先检查 GitHub Issues 是否已经创建，避免重复投稿。', 'error');
+      } finally {
+        busy = false;
+        if (window.turnstile && widgetId !== null) turnstile.reset(widgetId);
+      }
+    });
   }).catch(() => {
     fields.textContent = '表单加载失败，请刷新重试。';
     button.disabled = true;
