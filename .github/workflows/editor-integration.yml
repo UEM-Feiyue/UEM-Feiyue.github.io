@@ -13,6 +13,7 @@ jobs:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npm run build:editor
+      - run: sed -n '15758,15775p' assets/js/editor/editor.js
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - uses: actions/setup-python@v5
