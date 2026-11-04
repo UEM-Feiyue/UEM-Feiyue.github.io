@@ -17,9 +17,14 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npm run benchmark
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: editor-benchmark-builds
+          name: editor-benchmark-results
           path: |
             benchmark/editor/dist-tiptap
             benchmark/editor/dist-milkdown
+            benchmark/editor/playwright-report
+            benchmark/editor/test-results

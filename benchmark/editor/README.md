@@ -1,13 +1,9 @@
-# Isolated editor benchmark
+# Editor comparison
 
-This experiment lives on a separate branch. It does not modify the production site.
+Isolated experiment, not a production editor. Both variants are built with Vite. Run `npm install && npm run benchmark && npx playwright install chromium && npm test`.
 
-Run `npm install`, then `npm run benchmark` inside this directory. Open `npm run dev` for manual testing.
+The automated Chromium checks cover initial Chinese content, Markdown output, synthetic semantic HTML paste in Tiptap and a temporary image. They **do not** establish Word/WPS/Feishu compatibility, iOS Safari reliability, actual image uploads, or Markdown round-trip correctness.
 
-Two separately bundled entry points are measured using the same Vite settings. Bundle sizes are **not** equivalent to total runtime costs. Run real iPhone Safari and Word/WPS/Feishu/Tencent Docs clipboard tests before deciding.
+Dependency versions are exact in package.json for this experiment; a committed lockfile and `npm ci` are required before production integration. The benchmark sums all emitted JS/CSS assets, including chunks not necessarily downloaded on initial load; do not interpret as real network transfer.
 
-Check Chinese IME composition, undo/redo, headings, lists, bold, links, paste sanitization, image insertion, Markdown export, accessibility and dark mode.
-
-No image is uploaded to a server. The temporary object URL is for the experiment only and is not publishable. The production integration must implement image lifecycle and safe URL rewriting.
-
-The current site remains unchanged until results are verified.
+Manual acceptance remains necessary: paste genuine documents from Word/WPS/Feishu/Tencent Docs; inspect headings, links, lists and images; test Chinese IME, undo/redo, cursor and image operations on a real iPhone Safari.
