@@ -1,6 +1,17 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from '@tiptap/markdown';
+import { Heading } from '@tiptap/extension-heading';
+
+// Tiptap 3.10.1 calls Markdown parsers without binding the extension context.
+const MarkdownHeading = Heading.extend({
+  parseMarkdown: (token, helpers) => {
+    const level = token.depth || 1;
+    return level === 2 || level === 3
+      ? helpers.createNode('heading', { level }, helpers.parseInline(token.tokens || []))
+      : helpers.createNode('paragraph', undefined, helpers.parseInline(token.tokens || []));
+  },
+}).configure({ levels: [2, 3] });
 
 export function mountEditor(host, markdown, onChange) {
   const toolbar = document.createElement('div');
@@ -11,7 +22,7 @@ export function mountEditor(host, markdown, onChange) {
   host.append(toolbar, surface);
   const editor = new Editor({
     element: surface,
-    extensions: [StarterKit.configure({ heading: { levels: [2, 3] }, link: { openOnClick: false } }), Markdown],
+    extensions: [StarterKit.configure({ heading: false, link: { openOnClick: false } }), MarkdownHeading, Markdown],
     content: markdown || '',
     contentType: 'markdown',
     editorProps: { attributes: { 'aria-label': '经历正文编辑区' } },

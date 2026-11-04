@@ -7,8 +7,9 @@
   },
   "dependencies": {
     "@tiptap/core": "3.10.1",
-    "@tiptap/starter-kit": "3.10.1",
-    "@tiptap/markdown": "3.10.1"
+    "@tiptap/extension-heading": "3.10.1",
+    "@tiptap/markdown": "3.10.1",
+    "@tiptap/starter-kit": "3.10.1"
   },
   "devDependencies": {
     "vite": "7.1.12",
