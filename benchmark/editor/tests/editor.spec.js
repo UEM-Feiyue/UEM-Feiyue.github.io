@@ -35,3 +35,39 @@ test('Tiptap: image insertion is temporary and cannot be published as-is', async
   await expect(page.locator('#editor img')).toHaveAttribute('src', /^blob:/);
   await expect(page.locator('#status')).toContainText('不能作为正式');
 });
+
+
+test('Tiptap: Markdown import and export retain essential semantics', async ({ page }) => {
+  await page.goto('/tiptap.html');
+  const editor = page.locator('#editor [contenteditable="true"]');
+  await editor.click();
+  await page.evaluate(() => {
+    const el = document.querySelector('#editor [contenteditable="true"]');
+    const transfer = new DataTransfer();
+    transfer.setData('text/html', '<h2>申请经验</h2><p><strong>重点</strong>：准备材料</p><blockquote><p>保持真实</p></blockquote><ol><li>第一步</li><li>第二步</li></ol>');
+    transfer.setData('text/plain', '申请经验');
+    el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: transfer, bubbles: true, cancelable: true }));
+  });
+  const output = page.locator('#output');
+  await expect(output).toContainText('## 申请经验');
+  await expect(output).toContainText('**重点**');
+  await expect(output).toContainText('> 保持真实');
+  await expect(output).toContainText('1. 第一步');
+});
+
+test('Tiptap: paste must not preserve script elements or javascript links', async ({ page }) => {
+  await page.goto('/tiptap.html');
+  const editor = page.locator('#editor [contenteditable="true"]');
+  await editor.click();
+  await page.evaluate(() => {
+    const el = document.querySelector('#editor [contenteditable="true"]');
+    const transfer = new DataTransfer();
+    transfer.setData('text/html', '<p>安全文本 <a href="javascript:alert(1)">危险链接</a></p><script>window.__pasteExecuted = true</script>');
+    transfer.setData('text/plain', '安全文本 危险链接');
+    el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: transfer, bubbles: true, cancelable: true }));
+  });
+  await expect(page.locator('#output')).toContainText('安全文本');
+  await expect(page.locator('#output')).not.toContainText('javascript:');
+  await expect(page.locator('#editor script')).toHaveCount(0);
+  expect(await page.evaluate(() => window.__pasteExecuted === true)).toBe(false);
+});
