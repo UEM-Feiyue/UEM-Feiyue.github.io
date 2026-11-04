@@ -154,7 +154,7 @@
       bodyControl.required = false;
       editorStatus.textContent = '正文直接显示排版效果；内容保存为 Markdown 草稿。';
     }).catch(error => {
-      console.error('Rich editor failed to initialize:', error);
+      console.error('Rich editor failed to initialize:', error?.stack || String(error));
       editorHost.remove();
       editorStatus.textContent = '可视化编辑器加载失败，请使用 Markdown 文本框。';
     });
