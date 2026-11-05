@@ -171,7 +171,7 @@ def main():
             # A submitted Markdown story should preview as its published counterpart.
             # Inspect real production-rendered HTML, not an imagined CSS fixture.
             demo_source = (ROOT / "content/demo/demo-postgraduate.md").read_text(encoding="utf-8")
-            demo_body = demo_source.split("---\\n", 2)[2].strip()
+            demo_body = demo_source.split('---', 2)[2].strip()
             context = browser.new_context(reduced_motion="reduce")
             page = context.new_page()
             page.goto(base + PREFIX + "/articles/demo-postgraduate.html", wait_until="networkidle")
