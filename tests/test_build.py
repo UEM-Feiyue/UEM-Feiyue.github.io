@@ -33,7 +33,7 @@ class SubmissionBuildTests(unittest.TestCase):
         self.assertIn('class="campus-banner"', homepage)
         self.assertIn('class="campus-banner"', submission)
         self.assertIn('class="campus-banner"', build.render({"category": "career", "author": "同学", "year": "2026", "destination": "企业"}, "## 正文", "articles/test.html"))
-        self.assertIn("background:var(--footer-surface)", stylesheet)
+        self.assertIn(".site-footer{flex:none;background:var(--surface)", stylesheet)
         for page in (homepage, submission):
             self.assertIn('data-site-footer', page)
             self.assertIn('assets/js/theme-init.js', page)
