@@ -3,6 +3,9 @@ name: Publish completed UEM submissions
 on:
   issues:
     types: [closed]
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-completed-submission.yml']
 
 concurrency:
   group: uem-submission-publication
@@ -14,7 +17,7 @@ permissions:
 
 jobs:
   publish:
-    if: ${{ !github.event.issue.pull_request && startsWith(github.event.issue.title, '[飞跃手册投稿] ') }}
+    if: ${{ github.event_name == 'push' || (!github.event.issue.pull_request && startsWith(github.event.issue.title, '[飞跃手册投稿] ')) }}
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
@@ -63,7 +66,7 @@ jobs:
           done
           exit 1
       - name: Synchronize issue status
-        if: ${{ success() }}
+        if: ${{ success() && github.event_name == 'issues' }}
         env:
           APPROVED: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
         run: |
