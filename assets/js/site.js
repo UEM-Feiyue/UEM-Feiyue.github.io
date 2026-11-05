@@ -58,6 +58,7 @@
   const year = document.querySelector('#year-filter');
   const search = document.querySelector('#search');
   const cards = [...archive.querySelectorAll('.article-item')];
+  const originalExcerpts = new Map(cards.map(card => [card, card.querySelector('.article-excerpt').textContent]));
   const status = document.querySelector('#search-status');
   const empty = document.querySelector('#empty-state');
   const count = document.querySelector('#results-count');
@@ -76,6 +77,8 @@
         (activeCategory === 'all' || card.dataset.category === activeCategory) &&
         (year.value === 'all' || card.dataset.year === year.value);
       card.hidden = !visible;
+      card.querySelector('.article-excerpt').textContent =
+        matches?.get(articleUrl) || originalExcerpts.get(card);
       if (visible) {
         visibleCount++;
         hasDemo ||= card.dataset.demo === 'true';
@@ -102,11 +105,14 @@
       const pagefind = await loadSearch();
       const result = await pagefind.search(query);
       if (id !== requestId) return;
-      matches = new Set(result.results.map(item => new URL(item.id, location.href).pathname));
+      const pages = await Promise.all(result.results.map(item => item.data()));
+      if (id !== requestId) return;
+      matches = new Map(pages.map(page => [new URL(page.url, location.href).pathname,
+        page.plain_excerpt || page.meta?.title || '']));
       status.textContent = result.results.length ? '全文搜索结果' : '没有找到匹配内容';
     } catch (error) {
       if (id !== requestId) return;
-      matches = new Set();
+      matches = new Map();
       status.textContent = '全文搜索暂不可用，请刷新页面后重试。';
       console.error('Pagefind search failed', error);
     } finally {
