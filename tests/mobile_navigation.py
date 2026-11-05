@@ -29,6 +29,12 @@ def main():
                         f"localStorage.setItem('uem-theme', '{theme}')"
                     )
                     page = context.new_page()
+                    # Keep the navigation regression offline: the production Turnstile
+                    # widget intentionally refuses cross-origin localhost iframes.
+                    page.route("**/assets/js/submission-config.js*", lambda route: route.fulfill(
+                        content_type="application/javascript",
+                        body="window.UEM_SUBMISSION_CONFIG={enabled:false};",
+                    ))
                     errors = []
                     page.on("pageerror", lambda error: errors.append(str(error)))
                     page.goto(base + "/", wait_until="networkidle")
