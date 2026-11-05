@@ -57,3 +57,50 @@ test('rejects malformed submissions before Turnstile or GitHub', async () => {
     assert.equal(contacted, false);
   } finally { globalThis.fetch = oldFetch; }
 });
+
+test('valid verified submission creates one pending Issue', async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).includes('turnstile')) return Response.json({
+      success: true, hostname: 'uem-feiyue.github.io', action: 'uem_feiyue_submit'
+    });
+    return Response.json({
+      html_url: 'https://github.com/UEM-Feiyue/UEM-Feiyue.github.io/issues/57'
+    }, { status: 201 });
+  };
+  try {
+    const env = {
+      SUBMISSIONS_DISABLED: 'false', SUBMISSION_MODE: 'public',
+      GITHUB_TOKEN: 'test-only', TURNSTILE_SECRET: 'test-only',
+      SUBMISSION_LIMITER: { limit: async () => ({ success: true }) }
+    };
+    const response = await worker.fetch(request(), env);
+    assert.equal(response.status, 201);
+    assert.equal((await response.json()).ok, true);
+    assert.equal(calls.length, 2);
+    const body = JSON.parse(calls[1].options.body);
+    assert.deepEqual(body.labels, ['submission:pending']);
+    assert.match(body.body, /uem-submission-v1:/);
+    assert.doesNotMatch(body.body, /sample-token/);
+  } finally { globalThis.fetch = originalFetch; }
+});
+test('rejects verification for another origin or action', async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return Response.json({ success: true, hostname: 'other.example', action: 'wrong_action' });
+  };
+  try {
+    const env = {
+      SUBMISSIONS_DISABLED: 'false', SUBMISSION_MODE: 'public',
+      GITHUB_TOKEN: 'test-only', TURNSTILE_SECRET: 'test-only',
+      SUBMISSION_LIMITER: { limit: async () => ({ success: true }) }
+    };
+    const response = await worker.fetch(request(), env);
+    assert.equal(response.status, 403);
+    assert.equal(calls, 1);
+  } finally { globalThis.fetch = originalFetch; }
+});
