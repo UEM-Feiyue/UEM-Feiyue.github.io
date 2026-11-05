@@ -96,7 +96,7 @@ a:is(:hover,:focus-visible) .link-arrow{transform:translateX(3px) rotate(45deg)}
 .brand-lockup .brand-wordmark{
   display:block;flex:1;min-width:0;height:100%;
   background-image:url("../images/favicon-横版.png");
-  background-repeat:no-repeat;background-size:133.33% 100%;
+  background-repeat:no-repeat;background-size:auto 100%;
   background-position:right center;
 }
 .mobile-brand-logo{width:150px;max-width:100%}
