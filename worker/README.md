@@ -43,11 +43,17 @@ provided contact information. The Issue body includes an auditable
 `uem-submission-v1` data marker for a future trusted publication importer.
 Never publish directly from this untrusted Worker.
 
-The site's submission UI remains preview-only until the public Turnstile
-site key, real Worker endpoint and explicit submission workflow are configured.
-The completed-Issue-to-Markdown publication automation is a separate,
-trusted GitHub Actions responsibility; **closing an Issue does not publish
-a story until that importer is implemented and verified**.
+The submission UI has a public configuration in `assets/js/submission-config.js`,
+including the public Site Key and Worker endpoint. Its `enabled` switch defaults
+`false`; enable only after testing the live Worker and publication flow.
+The trusted GitHub Actions importer in `scripts/import_completed_submission.py`
+creates `content/community/issue-<number>.md` only for UEM submission Issues
+closed **as completed by FuTseYi**. Ordinary closures, PRs, invalid markers,
+other users and duplicate imports do not publish. A successful import pushes
+Markdown to main, triggering the existing static site deployment. GitHub Actions
+requires `contents: write` and repository workflow permission to push to main.
+After rollout verify moderation, idempotency and page build using synthetic
+Issues, and close test Issues as `not planned` to avoid publication.
 
 ## Security
 
