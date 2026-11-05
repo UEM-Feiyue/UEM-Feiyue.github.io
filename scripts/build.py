@@ -8,6 +8,7 @@ from urllib.parse import quote
 
 import bleach
 import markdown
+from markdown.extensions.toc import slugify_unicode
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -96,7 +97,7 @@ def shared_chrome(source, page, prefix="./", category=None):
 
 def render(meta, body, url):
     # Escape inline HTML before Markdown conversion; sanitize generated HTML too.
-    rendered = markdown.markdown(html.escape(body), extensions=["extra", "toc", "sane_lists", "pymdownx.tilde", "pymdownx.tasklist"])
+    rendered = markdown.markdown(html.escape(body), extensions=["extra", "toc", "sane_lists", "pymdownx.tilde", "pymdownx.tasklist"], extension_configs={"toc": {"slugify": slugify_unicode}})
     clean = bleach.clean(rendered, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, protocols=["http", "https", "mailto"], strip=True)
     byline = " · ".join(html.escape(display_year(meta[k]) if k == "year" else str(meta[k])) for k in ("author", "year", "major") if meta.get(k))
     headings = re.findall(r'<h([23]) id="([^"]+)">(.+?)</h[23]>', clean)
