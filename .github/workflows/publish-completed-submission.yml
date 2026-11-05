@@ -10,24 +10,36 @@ concurrency:
 
 permissions:
   contents: write
-  issues: read
+  issues: write
 
 jobs:
   publish:
-    if: ${{ !github.event.issue.pull_request && github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' && startsWith(github.event.issue.title, '[飞跃手册投稿] ') }}
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.issue.title, '[飞跃手册投稿] ') }}
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
     steps:
+      - name: Ensure review status labels exist
+        run: |
+          gh label create submission:pending --color 1d76db --description "等待审核" --force
+          gh label create submission:published --color 0e8a16 --description "已写入 main" --force
+          gh label create submission:failed --color b60205 --description "审核发布失败" --force
       - uses: actions/checkout@v7
+        if: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
         with:
           ref: main
           fetch-depth: 0
       - uses: actions/setup-python@v7
+        if: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
+        if: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
       - name: Import and publish reviewed Issue
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        id: publish
+        if: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -50,3 +62,18 @@ jobs:
             echo "main changed; retrying (${attempt}/3)"
           done
           exit 1
+      - name: Synchronize issue status
+        if: ${{ success() }}
+        env:
+          APPROVED: ${{ github.event.issue.state_reason == 'completed' && github.event.sender.login == 'FuTseYi' }}
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE_NUMBER" --remove-label submission:pending
+          gh issue edit "$ISSUE_NUMBER" --remove-label submission:failed || true
+          if [[ "$APPROVED" == "true" ]]; then
+            gh issue edit "$ISSUE_NUMBER" --add-label submission:published
+          fi
+      - name: Mark publication failure
+        if: ${{ failure() && steps.publish.outcome == 'failure' }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --add-label submission:failed --remove-label submission:pending
