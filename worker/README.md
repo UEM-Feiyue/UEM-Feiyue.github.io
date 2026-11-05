@@ -32,7 +32,7 @@ To stop accepting submissions, change `SUBMISSIONS_DISABLED=true`.
 A JSON request has `version:1`, `category`, the fields from
 `data/schema.json` (`author`, `year`, `destination`, `program`,
 `body`, `contact`) and a `turnstileToken`. Validation uses the shared
-schema, with a hard 24 KiB HTTP payload cap. The body and contact fields
+schema, with a hard 64 KiB HTTP payload cap. The body and contact fields
 also have explicit shared-schema length caps. No database or attachments.
 
 Successful creation returns HTTP 201:
