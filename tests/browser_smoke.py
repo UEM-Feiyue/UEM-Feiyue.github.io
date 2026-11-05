@@ -180,7 +180,7 @@ def main():
                     assert page.locator("#body").evaluate("el => el.scrollHeight <= el.clientHeight + 3")
                     page.locator("#body").fill("")
                     page.locator(".demo-actions button").filter(has_text="载入示例").click()
-                    assert page.locator("#body").input_value().startswith("## ")
+                    page.wait_for_function("document.querySelector('#body').value.startsWith('## ')")
                     assert page.locator(".markdown-help").get_attribute("open") is not None
                     assert page.locator(".markdown-preview").is_hidden()
                     assert page.locator("#body").is_visible()
