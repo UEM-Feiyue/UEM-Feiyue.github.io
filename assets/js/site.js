@@ -166,6 +166,7 @@
       items[target].focus();
     });
     year.addEventListener('change', updateMenu);
+    year.addEventListener('yearsync', updateMenu);
     updateMenu();
   }
 
@@ -253,6 +254,7 @@
     document.querySelector('#category-intro').textContent = current ? current.dataset.categoryDescription + '，阅读同学的经验分享。' : '按方向浏览同学分享的升学与职业经验。';
     search.value = history.state?.search || '';
     year.value = history.state?.year || 'all';
+    year.dispatchEvent(new Event('yearsync'));
     searchArticles();
   };
   const filter = () => {
