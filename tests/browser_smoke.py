@@ -184,7 +184,8 @@ def main():
                     assert page.locator(".markdown-help").get_attribute("open") is not None
                     assert page.locator(".markdown-preview").is_hidden()
                     assert page.locator("#body").is_visible()
-                    assert "格式" in page.locator(".markdown-help").inner_text()
+                    assert "Markdown" in page.locator(".markdown-help").inner_text()
+                    assert "## 小标题" in page.locator(".markdown-help").inner_text()
                     page.locator("#body").fill("")
                     page.locator("#body").fill("## Heading\n\n**Test body**\n\n<script>window.__unsafe = true</script>")
                     page.locator("#contact").fill("do-not-save@example.invalid")
