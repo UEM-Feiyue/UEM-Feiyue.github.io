@@ -62,6 +62,13 @@ def main():
                     }""")
                     assert background["bodyImage"] == "none"
                     assert background["bannerCount"] == 1
+                    assert page.locator(".campus-banner").evaluate("el => Math.abs(el.getBoundingClientRect().top) < 1")
+                    assert page.locator("#theme-toggle").count() == 1
+                    if width <= 900:
+                        assert page.locator(".topbar").is_visible()
+                    else:
+                        assert page.locator(".topbar").is_hidden()
+                        assert page.locator("#theme-toggle").is_visible()
                     assert "anguo-garden.jpg" in background["bannerImage"]
                     assert all(value.strip() == "cover" for value in background["bannerSize"].split(","))
                     assert 0 < background["bannerHeight"] <= 310
@@ -75,6 +82,12 @@ def main():
                         page.locator("#menu-toggle").click()
                         assert page.locator("#menu-toggle").get_attribute("aria-expanded") == "true"
                         assert not page.locator("#sidebar").evaluate("el => el.inert")
+                        assert page.locator("#theme-toggle").is_visible()
+                        original_theme = page.evaluate("document.documentElement.dataset.theme || 'light'")
+                        page.locator("#theme-toggle").click()
+                        assert page.evaluate("document.documentElement.dataset.theme") != original_theme
+                        page.locator("#theme-toggle").click()
+                        assert page.evaluate("document.documentElement.dataset.theme") == original_theme
                         page.keyboard.press("Escape")
                         assert page.locator("#menu-toggle").get_attribute("aria-expanded") == "false"
                         assert page.locator("#menu-toggle").evaluate("el => el === document.activeElement")
@@ -91,8 +104,10 @@ def main():
                     assert "view=all" in page.url
                     assert page.locator(".article-item:visible").count() == len(articles)
                     page.locator("#search").fill("no-matching-story-987654321")
+                    page.wait_for_function("document.querySelector('#search-status').textContent.includes('没有找到匹配内容')")
                     assert page.locator(".empty-state").is_visible()
                     page.locator("#search").fill(articles[0]["author"])
+                    page.wait_for_function("document.querySelector('#search-status').textContent.includes('全文搜索结果')")
                     assert page.locator(".article-item:visible").count() > 0
                     page.locator(".article-item:visible h3 a").first.click()
                     page.wait_for_selector(".article-body")
@@ -217,6 +232,20 @@ def main():
             assert appearance("#preview-text .article-body") == expected["body"]
             assert appearance("#preview-text .article-body h2") == expected["h2"]
             assert appearance("#preview-text > h1") == expected["title_style"]
+            context.close()
+            # A phrase found only in the article body must be searchable.
+            context = browser.new_context()
+            page = context.new_page()
+            page.goto(base + "/?view=all", wait_until="networkidle")
+            page.locator("#search").fill("推荐信")
+            page.wait_for_function("document.querySelector('#search-status').textContent.includes('全文搜索结果')")
+            assert page.locator(".article-item:visible").count() == 1
+            assert "陈同学" in page.locator(".article-item:visible").inner_text()
+            assert "推荐信" in page.locator(".article-item:visible .article-excerpt").inner_text()
+            page.locator("#year-filter").select_option("2026")
+            assert page.locator(".article-item:visible").count() == 1
+            page.locator("#search").fill("")
+            assert page.locator(".article-item:visible").count() == len(articles)
             context.close()
             # Mocked public mode: confirm the complete browser payload/feedback
             # without contacting Cloudflare or opening an actual GitHub Issue.
