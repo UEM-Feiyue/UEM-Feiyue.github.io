@@ -42,11 +42,11 @@ def decode_issue(issue):
         raise ValueError("Pending submission label is required")
     body = issue.get("body") or ""
     marks = MARKER.findall(body)
-    if len(marks) != 1 or len(marks[0]) > 32768:
+    if len(marks) != 1 or len(marks[0]) > 86000:
         raise ValueError("Expected exactly one valid submission marker")
     encoded = marks[0]
     raw = base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
-    if len(raw) > 24576:
+    if len(raw) > 65536:
         raise ValueError("Submission record oversized")
     record = validate_record(json.loads(raw.decode("utf-8")))
     title = record["author"] + " — " + record["destination"]
