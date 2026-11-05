@@ -91,8 +91,8 @@ a:is(:hover,:focus-visible) .link-arrow{transform:translateX(3px) rotate(45deg)}
 .brand{margin-bottom:48px;min-height:52px}/* The official horizontal mark contains excess white around its circular seal.
    Crop the seal silhouette once, preserving the wordmark and image aspect ratio. */
 .brand-logo,.mobile-brand-logo{
-  -webkit-mask-image:radial-gradient(ellipse 10.2% 43% at 11.6% 50%,#000 98%,transparent 100%),linear-gradient(90deg,transparent 0 25%,#000 25%);
-  mask-image:radial-gradient(ellipse 10.2% 43% at 11.6% 50%,#000 98%,transparent 100%),linear-gradient(90deg,transparent 0 25%,#000 25%);
+  -webkit-mask-image:radial-gradient(ellipse 8.6% 37% at 11.6% 50%,#000 98%,transparent 100%),linear-gradient(90deg,transparent 0 25%,#000 25%);
+  mask-image:radial-gradient(ellipse 8.6% 37% at 11.6% 50%,#000 98%,transparent 100%),linear-gradient(90deg,transparent 0 25%,#000 25%);
 }
 .brand-logo{display:block;width:100%;height:auto;max-width:215px;object-fit:contain}.mobile-brand-logo{display:block;width:150px;max-width:100%;height:auto;object-fit:contain}.mobile-brand{min-width:0;max-width:calc(100% - 64px)}
 @media(max-width:900px){.brand-logo{max-width:100%}.mobile-brand-logo{width:clamp(128px,38vw,174px)}}
