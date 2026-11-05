@@ -63,7 +63,7 @@ def main():
                     assert background["bodyImage"] == "none"
                     assert background["bannerCount"] == 1
                     assert "anguo-garden.jpg" in background["bannerImage"]
-                    assert background["bannerSize"] == "cover"
+                    assert all(value.strip() == "cover" for value in background["bannerSize"].split(","))
                     assert 0 < background["bannerHeight"] <= 310
                     assert abs(background["bannerWidth"] - background["containerWidth"]) <= 1
                     assert background["contentTop"] >= background["bannerBottom"] - 1
