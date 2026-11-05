@@ -3,7 +3,7 @@ import schema from '../../data/schema.json' with { type: 'json' };
 
 const ORIGINS = new Set(['https://uem-feiyue.github.io']);
 const REPOSITORY = 'UEM-Feiyue/UEM-Feiyue.github.io';
-const MAX_BYTES = 24576;
+const MAX_BYTES = 65536;
 const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/;
 
 function respond(data, status = 200, origin) {
