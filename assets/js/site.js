@@ -58,6 +58,8 @@
   const year = document.querySelector('#year-filter');
   const search = document.querySelector('#search');
   const cards = [...archive.querySelectorAll('.article-item')];
+  const siteRoot = new URL('./', location.href).pathname;
+  const indexedPath = path => path.startsWith(siteRoot) ? '/' + path.slice(siteRoot.length) : path;
   const originalExcerpts = new Map(cards.map(card => [card, card.querySelector('.article-excerpt').textContent]));
   const status = document.querySelector('#search-status');
   const empty = document.querySelector('#empty-state');
@@ -72,7 +74,7 @@
     let visibleCount = 0;
     let hasDemo = false;
     for (const card of cards) {
-      const articleUrl = card.querySelector('h3 a').pathname;
+      const articleUrl = indexedPath(card.querySelector('h3 a').pathname);
       const visible = !searching && (matches === null || matches.has(articleUrl)) &&
         (activeCategory === 'all' || card.dataset.category === activeCategory) &&
         (year.value === 'all' || card.dataset.year === year.value);
