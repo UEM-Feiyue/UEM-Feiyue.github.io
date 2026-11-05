@@ -176,7 +176,7 @@ def main():
             page = context.new_page()
             page.goto(base + PREFIX + "/articles/demo-postgraduate.html", wait_until="networkidle")
             def appearance(selector):
-                return page.locator(selector).evaluate("""el => {
+                return page.locator(selector).first.evaluate("""el => {
                     const style = getComputedStyle(el);
                     return {
                         fontSize: style.fontSize,
@@ -191,6 +191,7 @@ def main():
                 "byline": page.locator(".article-page > .article-byline").inner_text(),
                 "headings": page.locator(".article-body h1, .article-body h2, .article-body h3").all_inner_texts(),
                 "toc": page.locator(".article-toc a").all_inner_texts(),
+                "toc_urls": page.locator(".article-toc a").evaluate_all("items => items.map(item => item.getAttribute(\'href\'))"),
                 "body": appearance(".article-body"),
                 "h2": appearance(".article-body h2"),
                 "title_style": appearance(".article-page > h1"),
@@ -212,6 +213,7 @@ def main():
             assert page.locator("#preview-text > .article-byline").inner_text() == expected["byline"]
             assert page.locator("#preview-text .article-body h1, #preview-text .article-body h2, #preview-text .article-body h3").all_inner_texts() == expected["headings"]
             assert page.locator("#preview-text .article-toc a").all_inner_texts() == expected["toc"]
+            assert page.locator("#preview-text .article-toc a").evaluate_all("items => items.map(item => item.getAttribute(\'href\'))") == expected["toc_urls"]
             assert appearance("#preview-text .article-body") == expected["body"]
             assert appearance("#preview-text .article-body h2") == expected["h2"]
             assert appearance("#preview-text > h1") == expected["title_style"]
