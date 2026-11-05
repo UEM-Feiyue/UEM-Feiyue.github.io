@@ -5,7 +5,7 @@ from threading import Thread
 
 from playwright.sync_api import sync_playwright
 
-from tests.browser_smoke import Handler, PREFIX, ROOT
+from browser_smoke import Handler, PREFIX, ROOT
 
 
 def main():
