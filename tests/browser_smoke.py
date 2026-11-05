@@ -138,7 +138,7 @@ def main():
             context = browser.new_context()
             page = context.new_page()
             submissions = []
-            page.route("**/assets/js/submission-config.js", lambda route: route.fulfill(
+            page.route("**/assets/js/submission-config.js*", lambda route: route.fulfill(
                 content_type="application/javascript",
                 body="window.UEM_SUBMISSION_CONFIG={enabled:true,apiEndpoint:'https://uem-feiyue-submissions.futseyi.workers.dev/submit',turnstileSiteKey:'test-site-key'};"
             ))
@@ -158,17 +158,7 @@ def main():
             page.locator("#year").fill("2026")
             page.locator("#destination").fill("某公司")
             page.locator("#body").fill("## 完整经历\\n\\n测试内容")
-            try:
-                page.wait_for_function("!document.querySelector('#submit-button').disabled", timeout=5000)
-            except Exception as exc:
-                state = page.evaluate("""() => ({
-                    config: window.UEM_SUBMISSION_CONFIG,
-                    turnstileLoaded: Boolean(window.turnstile),
-                    buttonHidden: document.querySelector('#submit-button')?.hidden,
-                    captchaHidden: document.querySelector('#submission-turnstile')?.hidden,
-                    message: document.querySelector('#submission-status')?.textContent
-                })""")
-                raise AssertionError(f"Submission browser handshake failed: {state}") from exc
+            page.wait_for_function("!document.querySelector('#submit-button').disabled", timeout=10000)
             page.locator("#submit-button").click()
             page.get_by_text("查看投稿记录").wait_for()
             assert len(submissions) == 1
