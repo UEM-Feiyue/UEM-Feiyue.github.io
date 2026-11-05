@@ -77,6 +77,20 @@ def main():
                     assert background["contentBackground"] != "rgba(0, 0, 0, 0)"
                     assert page.locator("#category-nav [data-category]").count() == 5
                     assert page.locator(".site-footer").count() == 1
+                    # Footer columns align to the outside edges of the content area.
+                    footer = page.evaluate("""() => {
+                        const inner = document.querySelector('.footer-inner').getBoundingClientRect();
+                        const brand = document.querySelector('.footer-grid > div:first-child').getBoundingClientRect();
+                        const links = document.querySelector('.footer-grid > div:last-child').getBoundingClientRect();
+                        return {left: inner.left, right: inner.right, brand: brand.left,
+                                navLeft: links.left, navRight: links.right};
+                    }""")
+                    assert abs(footer["brand"] - footer["left"]) <= 2
+                    if width > 720:
+                        assert abs(footer["navRight"] - footer["right"]) <= 2
+                    else:
+                        assert abs(footer["navLeft"] - footer["left"]) <= 2
+
                     if width <= 900:
                         assert page.locator("#sidebar").evaluate("el => el.inert")
                         page.locator("#menu-toggle").click()
