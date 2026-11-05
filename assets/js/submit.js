@@ -348,7 +348,7 @@
         if (!token) { say('请先完成人机验证。'); return; }
         const values = Object.fromEntries(new FormData(form));
         const payload = { version: 1, ...values, turnstileToken: token };
-        if (new TextEncoder().encode(JSON.stringify(payload)).length > 24576) {
+        if (new TextEncoder().encode(JSON.stringify(payload)).length > 65536) {
           say('内容过长，请精简后重试。');
           return;
         }
