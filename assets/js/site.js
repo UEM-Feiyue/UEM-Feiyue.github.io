@@ -121,6 +121,24 @@
       });
       yearMenu.append(item);
     }
+    const positionMenu = () => {
+      const rect = yearTrigger.getBoundingClientRect();
+      const width = Math.max(rect.width, 148);
+      const spaceBelow = innerHeight - rect.bottom;
+      yearMenu.style.width = width + 'px';
+      yearMenu.style.left = Math.max(8, Math.min(rect.left, innerWidth - width - 8)) + 'px';
+      yearMenu.style.top = (spaceBelow >= 130 ? rect.bottom + 6 :
+        Math.max(8, rect.top - Math.min(yearMenu.scrollHeight || 150, 230) - 6)) + 'px';
+    };
+    yearMenu.addEventListener('beforetoggle', event => {
+      if (event.newState === 'open') positionMenu();
+    });
+    window.addEventListener('resize', () => {
+      if (yearMenu.matches(':popover-open')) positionMenu();
+    }, {passive:true});
+    window.addEventListener('scroll', () => {
+      if (yearMenu.matches(':popover-open')) positionMenu();
+    }, {passive:true});
     yearTrigger.addEventListener('click', () => {
       requestAnimationFrame(() => {
         if (yearMenu.matches(':popover-open')) yearMenu.querySelector('.is-selected')?.focus();
