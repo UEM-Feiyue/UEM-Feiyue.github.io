@@ -75,7 +75,7 @@
       "required": true,
       "placeholder": "写下准备过程、关键节点、经验教训，以及想对学弟学妹说的话",
       "hint": "支持直接粘贴 Markdown；可载入示例并切换预览。",
-      "maxLength": 12000
+      "maxLength": 8000
     },
     {
       "name": "contact",
