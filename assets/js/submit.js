@@ -383,6 +383,8 @@
           submitButton.disabled = true;
         }
       });
+    } else {
+      say('投稿服务暂未开放，可先预览并保存草稿。');
     }
 
   }).catch(() => {
