@@ -112,14 +112,14 @@ body{background:var(--bg)}
 .page.is-home .home-guide p{color:var(--muted);font-size:13px}
 /* HAI's two-column footer structure; colors and surface belong to UEM's theme. */
 .site-footer{flex:none;background:var(--footer-surface);color:var(--footer-copy);padding:48px clamp(22px,5vw,76px) 22px}
-.footer-inner{max-width:1120px;margin:auto}
-.footer-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(170px,.7fr);gap:clamp(28px,5vw,70px)}
+.footer-inner{width:100%;max-width:none;margin:0}
+.footer-grid{display:grid;grid-template-columns:minmax(0,1fr) max-content;justify-content:space-between;align-items:start;gap:clamp(24px,5vw,72px)}.footer-grid>div:last-child{justify-self:end;text-align:right}
 .footer-brand-link{display:inline-flex;align-items:center;gap:12px;max-width:100%;color:var(--footer-copy)}
 .footer-logo{display:block;width:52px;height:52px;flex:none;border-radius:50%;background:#fff;padding:5px}
 .footer-brand-name{font-size:17px;font-weight:700;letter-spacing:.025em}
 .footer-brand p{max-width:420px;color:var(--footer-muted);font-size:14px;line-height:1.9;margin:16px 0 0}
 .footer-title{font-size:12px;letter-spacing:.14em;color:var(--footer-muted);font-weight:700;margin:0 0 13px}
-.footer-links{display:grid;gap:9px}
+.footer-links{display:grid;justify-items:end;gap:9px}
 .footer-links a{font-size:14px;color:var(--footer-copy)}
 .footer-links a:hover,.footer-links a:focus-visible,.footer-bottom a:hover{color:var(--accent)}
 .footer-bottom{display:flex;justify-content:space-between;gap:20px;margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--footer-muted);font-size:12px}
@@ -149,3 +149,11 @@ body{background:var(--bg)}
   .menu-button{display:grid;place-items:center}
 }
 .search-status{font-size:13px;color:var(--muted);margin:-10px 0 14px}
+
+/* Editorial footer: outer columns use the entire content width. A narrow
+   viewport stacks them without squeezed columns or right-aligned navigation. */
+@media(max-width:720px){
+  .footer-grid{grid-template-columns:minmax(0,1fr);gap:28px}
+  .footer-grid>div:last-child{justify-self:start;text-align:left}
+  .footer-links{justify-items:start}
+}
