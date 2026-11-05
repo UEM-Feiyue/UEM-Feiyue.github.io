@@ -301,7 +301,8 @@ def main():
             assert page.locator(".article-item:visible").count() == 1
             assert "陈同学" in page.locator(".article-item:visible").inner_text()
             assert "推荐信" in page.locator(".article-item:visible .article-excerpt").inner_text()
-            page.locator("#year-filter").select_option("2026")
+            page.locator("#year-trigger").click()
+            page.locator("#year-options [data-value='2026']").click()
             assert page.locator(".article-item:visible").count() == 1
             page.locator("#search").fill("")
             assert page.locator(".article-item:visible").count() == len(articles)
