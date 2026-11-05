@@ -285,8 +285,8 @@
       const headings = [...body.querySelectorAll('h2, h3')];
       const used = new Set();
       for (const heading of headings) {
-        const base = heading.textContent.normalize('NFKD').toLowerCase()
-          .replace(/[^\\p{L}\\p{N}_ -]/gu, '').trim().replace(/ +/g, '-') || 'section';
+        const base = heading.textContent.normalize('NFKC').toLowerCase()
+          .replace(/[^\\p{L}\\p{N}_\\s-]/gu, '').replace(/[-\\s]+/g, '-').replace(/^-|-$/g, '') || 'section';
         let id = base;
         for (let i = 1; used.has(id); i++) id = base + '_' + i;
         heading.id = id;
