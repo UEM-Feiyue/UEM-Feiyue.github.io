@@ -1,7 +1,0 @@
-_site/
-.venv/
-__pycache__/
-*.py[cod]
-.preview-*/
-output/
-.playwright-cli/

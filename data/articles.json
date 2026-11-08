@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "demo": true,
+    "title": "某智能制造企业 · 项目运营方向",
+    "category": "career",
+    "author": "周同学",
+    "year": "2026",
+    "college": "某学院",
+    "major": "某专业",
+    "program": "项目运营方向",
+    "destination": "某智能制造企业",
+    "excerpt": "从第一版简历没人回复，到逐渐学会用项目细节解释自己的能力，我的求职准备经历了几次转弯。",
+    "tags": [
+      "实习",
+      "简历",
+      "面试"
+    ],
+    "url": "articles/demo-career.html"
+  },
+  {
+    "demo": true,
+    "title": "香港某高校 · 理工类硕士项目",
+    "category": "overseas",
+    "author": "陈同学",
+    "year": "2026",
+    "college": "某学院",
+    "major": "某专业",
+    "program": "理工类硕士项目",
+    "destination": "香港某高校",
+    "excerpt": "申请季里最难的不是填网申，而是把课程、项目和未来打算整理成一条能说清楚的主线。",
+    "tags": [
+      "选校",
+      "文书",
+      "时间规划"
+    ],
+    "url": "articles/demo-overseas.html"
+  },
+  {
+    "demo": true,
+    "title": "某理工类高校 · 安全工程相关专业",
+    "category": "kaoyan",
+    "author": "林同学",
+    "year": "2026",
+    "college": "某学院",
+    "major": "某专业",
+    "program": "安全工程相关专业",
+    "destination": "某理工类高校",
+    "excerpt": "从择校犹豫到复习计划落地，我最有感触的是把信息焦虑变成每周都能执行的小任务。",
+    "tags": [
+      "择校",
+      "初试",
+      "复试"
+    ],
+    "url": "articles/demo-postgraduate.html"
+  },
+  {
+    "demo": true,
+    "title": "某地事业单位招录方向 · 综合管理岗位",
+    "category": "public",
+    "author": "许同学",
+    "year": "2026",
+    "college": "某学院",
+    "major": "某专业",
+    "program": "综合管理岗位",
+    "destination": "某地事业单位招录方向",
+    "excerpt": "报名条件、笔试节奏和面试表达，我最想提醒的是先看清岗位，再决定如何投入时间。",
+    "tags": [
+      "选岗",
+      "笔试",
+      "面试"
+    ],
+    "url": "articles/demo-public.html"
+  }
+]
