@@ -989,8 +989,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   list-style: none;
   margin: 0;
   padding: 8px 6px 12px;
-  max-height: 50vh;
+  max-height: 24rem;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.article-toc.is-enhanced ul {
+  --fade-size: 48px;
+  --fade-top: 0px;
+  --fade-bottom: 0px;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
+}
+
+.article-toc.is-enhanced ul::-webkit-scrollbar {
+  display: none;
+}
+
+.article-toc ul.can-scroll-up {
+  --fade-top: var(--fade-size);
+}
+
+.article-toc ul.can-scroll-down {
+  --fade-bottom: var(--fade-size);
 }
 
 .article-toc li {

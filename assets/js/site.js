@@ -48,6 +48,13 @@
     const summary = contents.querySelector('summary');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     contents.classList.add('is-enhanced');
+    const list = contents.querySelector('ul');
+    const syncScrollFade = () => {
+      list.classList.toggle('can-scroll-up', list.scrollTop > 2);
+      list.classList.toggle('can-scroll-down', list.scrollHeight - list.clientHeight - list.scrollTop > 2);
+    };
+    list.addEventListener('scroll', syncScrollFade, {passive:true});
+    new ResizeObserver(syncScrollFade).observe(list);
     let closing = false;
     let navigating = false;
     let pendingTarget = null;
